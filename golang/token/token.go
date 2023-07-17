@@ -14,6 +14,10 @@ const (
   MINUS = "-"
   COMMA = ","
   SEMICOLON = ";"
+  FUNCTION = "FUNCTION"
+  LET = "LET"
+  IDENT = "IDENT"
+  INT = "INT"
 )
 
 type Token struct {
