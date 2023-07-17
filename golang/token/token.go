@@ -20,3 +20,12 @@ type Token struct {
   Type TokenType
   Value string
 }
+
+func New(tt TokenType, val string) Token {
+  tok := Token {
+    Type: tt,
+    Value: val,
+  }
+
+  return tok
+}
