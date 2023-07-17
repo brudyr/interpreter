@@ -20,6 +20,18 @@ const (
   INT = "INT"
 )
 
+var keywords = map[string]TokenType {
+  "func": FUNCTION,
+  "let": LET,
+}
+
+func IdentifyTokenType(ident string) TokenType {
+  if tok, ok := keywords[ident]; ok {
+    return tok
+  }
+  return IDENT
+}
+
 type Token struct {
   Type TokenType
   Value string

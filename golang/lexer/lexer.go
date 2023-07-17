@@ -17,6 +17,9 @@ func New(input string) *Lexer {
 
 func (l *Lexer) NextToken() token.Token {
   var tok token.Token
+
+  l.skipWhitespace()
+
   switch l.curr {
     case '=':
       tok = token.New(token.ASSIGN, "=")
@@ -39,7 +42,15 @@ func (l *Lexer) NextToken() token.Token {
     case 0:
       tok = token.New(token.EOF, "EOF")
     default:
-      tok = token.New(token.ILLEGAL, "")
+      if isLetter(l.curr) {
+        tokenVal := l.readIdent()
+        return token.New(token.IdentifyTokenType(tokenVal), tokenVal)
+      } else if isNumber(l.curr) {
+        tokenVal := l.readNumber()
+        return token.New(token.INT, tokenVal)
+      } else {
+        tok = token.New(token.ILLEGAL, "")
+      }
   }
   l.readChar()
   return tok
@@ -53,4 +64,34 @@ func (l *Lexer) readChar() {
   }
   l.pos = l.readPos
   l.readPos++
+}
+
+func (l *Lexer) readIdent() string {
+  startPos := l.pos
+  for isLetter(l.curr) {
+    l.readChar()
+  }
+  return l.input[startPos:l.pos]
+}
+
+func (l *Lexer) readNumber() string {
+  startPos := l.pos
+  for isNumber(l.curr) {
+    l.readChar()
+  }
+  return l.input[startPos:l.pos]
+}
+
+func isLetter(char byte) bool {
+  return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
+}
+
+func isNumber(char byte) bool {
+  return (char >= '0' && char <= '9')
+}
+
+func (l *Lexer) skipWhitespace() {
+  for l.curr == ' ' || l.curr == '\t' || l.curr == '\n' || l.curr == '\r' {
+      l.readChar()
+  }
 }

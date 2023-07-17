@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/brudyr/go-interpreter/token"
@@ -45,7 +46,7 @@ func TestMultiCharTokens(t *testing.T) {
   input := `let someNum = 6;
   let biggerNum = 12;
 
-  let add = fn(a, b) {
+  let add = func(a, b) {
     a + b
   }
 
@@ -103,8 +104,18 @@ func TestMultiCharTokens(t *testing.T) {
       t.Fatalf(
         "[testcase #%d] - Wrong TokenType - Expected: '%s' | Got: '%s'",
         index,
-        currentToken.Type, testCase.expectedType,
+        testCase.expectedType,
+        currentToken.Type,
       )
+    } else {
+      fmt.Printf(
+        "[testcase #%d] - Correct TokenType - Expected: '%s' | Got: '%s'\n",
+        index,
+        testCase.expectedType,
+        currentToken.Type,
+      )
+      fmt.Println(currentToken.Value)
     }
+
   }
 }
