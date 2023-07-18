@@ -36,7 +36,8 @@ func TestSingleCharTokens(t *testing.T) {
       t.Fatalf(
         "[testcase #%d] - Wrong TokenType - Expected: '%s' | Got: '%s'",
         index,
-        currentToken.Type, testCase.expectedType,
+        testCase.expectedType,
+        currentToken.Type,
       )
     }
   }
