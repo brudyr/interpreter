@@ -5,6 +5,7 @@ type TokenType string
 const (
   ILLEGAL TokenType = "ILLEGAL"
   EOF = "EOF"
+  // single char
   ASSIGN = "="
   LPAREN = "("
   RPAREN = ")"
@@ -14,8 +15,22 @@ const (
   MINUS = "-"
   COMMA = ","
   SEMICOLON = ";"
+  BANG = "!"
+  ASTERISK = "*"
+  SLASH = "/"
+  GT = ">"
+  LT = "<"
+  // double char
+  EQ = "=="
+  NOT_EQ = "!="
+  // idents / keywords
   FUNCTION = "FUNCTION"
   LET = "LET"
+  TRUE = "TRUE"
+  FALSE = "FALSE"
+  IF = "IF"
+  ELSE = "ELSE"
+  RETURN = "RETURN"
   IDENT = "IDENT"
   INT = "INT"
 )
@@ -23,6 +38,11 @@ const (
 var keywords = map[string]TokenType {
   "func": FUNCTION,
   "let": LET,
+  "true": TRUE,
+  "false": FALSE,
+  "if": IF,
+  "else": ELSE,
+  "return": RETURN,
 }
 
 func IdentifyTokenType(ident string) TokenType {

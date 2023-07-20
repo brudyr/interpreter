@@ -22,7 +22,13 @@ func (l *Lexer) NextToken() token.Token {
 
   switch l.curr {
     case '=':
-      tok = token.New(token.ASSIGN, "=")
+      if l.peakChar() == '=' {
+        currentChar := l.curr
+        l.readChar()
+        tok = token.New(token.EQ, string(currentChar) + string(l.curr))
+      } else {
+        tok = token.New(token.ASSIGN, "=")
+      }
     case '(':
       tok = token.New(token.LPAREN, "(")
     case ')':
@@ -39,6 +45,22 @@ func (l *Lexer) NextToken() token.Token {
       tok = token.New(token.COMMA, ",")
     case ';':
       tok = token.New(token.SEMICOLON, ";")
+    case '<':
+      tok = token.New(token.LT, "<")
+    case '>':
+      tok = token.New(token.GT, ">")
+    case '!':
+      if l.peakChar() == '=' {
+        currentChar := l.curr
+        l.readChar()
+        tok = token.New(token.NOT_EQ, string(currentChar) + string(l.curr))
+      } else {
+        tok = token.New(token.BANG, "!")
+      }
+    case '/':
+      tok = token.New(token.SLASH, "/")
+    case '*':
+      tok = token.New(token.ASTERISK, "*")
     case 0:
       tok = token.New(token.EOF, "EOF")
     default:
@@ -93,5 +115,13 @@ func isNumber(char byte) bool {
 func (l *Lexer) skipWhitespace() {
   for l.curr == ' ' || l.curr == '\t' || l.curr == '\n' || l.curr == '\r' {
       l.readChar()
+  }
+}
+
+func (l *Lexer) peakChar() byte {
+  if l.readPos >= len(l.input) {
+    return 0;
+  } else {
+    return l.input[l.readPos]
   }
 }
