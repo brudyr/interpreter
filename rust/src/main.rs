@@ -37,11 +37,36 @@ impl Lexer {
             pos: 0,
             read_pos: 0,
         };
+        lexer.read_char();
         return lexer;
     }
 
     pub fn next_token(&mut self) -> Token {
-        return Token::RBRACE;
+        let tok = match self.curr {
+            b',' => Token::COMMA,
+            b';' => Token::SEMICOLON,
+            b'(' => Token::LPAREN,
+            b')' => Token::RPAREN,
+            b'{' => Token::LBRACE,
+            b'}' => Token::RBRACE,
+            b'+' => Token::PLUS,
+            b'-' => Token::MINUS,
+            b'=' => Token::ASSIGN,
+            0 => Token::EOF,
+            _ => Token::ILLEGAL,
+        };
+        self.read_char();
+        return tok;
+    }
+
+    fn read_char(&mut self) {
+        if self.read_pos >= self.input.len() {
+            self.curr = 0;
+        } else {
+            self.curr = self.input[self.read_pos];
+        }
+        self.pos = self.read_pos;
+        self.read_pos += 1;
     }
 }
 
@@ -54,8 +79,21 @@ mod test {
         let input = String::from("{}()+-,;");
         let mut lexer = Lexer::new(input);
 
-        let tok = lexer.next_token();
+        let test_cases = vec![
+            Token::LBRACE,
+            Token::RBRACE,
+            Token::LPAREN,
+            Token::RPAREN,
+            Token::PLUS,
+            Token::MINUS,
+            Token::COMMA,
+            Token::SEMICOLON,
+            Token::EOF,
+        ];
 
-        assert_eq!(tok, Token::LBRACE);
+        for test in test_cases {
+            let next_tok = lexer.next_token();
+            assert_eq!(next_tok, test);
+        }
     }
 }
