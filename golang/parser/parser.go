@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/brudyr/go-interpreter/ast"
 	"github.com/brudyr/go-interpreter/lexer"
 	"github.com/brudyr/go-interpreter/token"
@@ -10,10 +12,11 @@ type Parser struct {
   lexer *lexer.Lexer
   curToken token.Token
   peekToken token.Token
+  errors []string
 }
 
 func New(l *lexer.Lexer) *Parser {
-  p := &Parser{lexer: l}
+  p := &Parser{lexer: l, errors: []string{}}
 
   // initally fill curToken and peekToken
   p.nextToken()
@@ -83,6 +86,16 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
     p.nextToken()
     return true
   } else {
+    p.peekError(t)
     return false
   }
+}
+
+func (p *Parser) GetErrors() []string {
+  return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+  msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+  p.errors = append(p.errors, msg)
 }
