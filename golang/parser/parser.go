@@ -8,7 +8,6 @@ import (
 
 type Parser struct {
   lexer *lexer.Lexer
-  
   curToken token.Token
   peekToken token.Token
 }
