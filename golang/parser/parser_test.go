@@ -234,6 +234,56 @@ func TestParsingPrefixExpressions(t *testing.T) {
 			return
 		}
 	}
+}
+
+func TestParsingInfixExpressions(t *testing.T) {
+	infixTests := []struct{
+		input string
+		leftValue int64
+		operator string
+		rightValue int64
+	}{
+		{"5 + 5;", 5, "+", 5},
+    {"5 - 5;", 5, "-", 5},
+    {"5 * 5;", 5, "*", 5},
+    {"5 / 5;", 5, "/", 5},
+    {"5 > 5;", 5, ">", 5},
+    {"5 < 5;", 5, "<", 5},
+    {"5 == 5;", 5, "==", 5},
+    {"5 != 5;", 5, "!=", 5},
+	}
+
+	for _, testCase := range infixTests {
+		lexer := lexer.New(testCase.input)
+		parser := New(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected only one statement got: %d", len(program.Statements))
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Expected first statement to be an ExpressionStatement. Got: %T", program.Statements[0])
+		}
+
+		expression, ok := statement.Expression.(*ast.InfixExpression)
+		if !ok {
+			t.Fatalf("Expected the expression to be an InfixExpression. Got: %T", statement.Expression)
+		}
+
+		if !testIntegerLiteral(t, expression.Left, testCase.leftValue) {
+			return
+		}
+
+		if expression.Operator != testCase.operator {
+			t.Fatalf("Expected operator %s. Got: %s", testCase.operator, expression.Operator)
+		}
 
 
+		if !testIntegerLiteral(t, expression.Right, testCase.rightValue) {
+			return
+		}
+	}
 }
