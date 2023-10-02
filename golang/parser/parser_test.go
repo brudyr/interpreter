@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/brudyr/go-interpreter/ast"
@@ -79,6 +80,26 @@ func checkParserErrors(t *testing.T, p *Parser) {
 		t.Errorf("Parser error: %q", msg)
 	}
 	t.FailNow()
+}
+
+func testIntegerLiteral(t *testing.T, expression ast.Expression, value int64) bool {
+	integer, ok := expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf("expression was not an ast.IntegerLiteral as expected. Got: %T", expression)
+		return false
+	}
+
+	if integer.Value != value {
+		t.Errorf("value of IntegerLiteral was not %d as expected. Got: %d", value, integer.Value)
+		return false
+	}
+
+	if integer.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf("integ.TokenLiteral not %d. got=%s", value, integer.TokenLiteral())
+    return false
+	}
+
+	return true
 }
 
 func TestReturnStatements(t *testing.T) {
@@ -173,4 +194,46 @@ func TestIntegerLiteralExpression(t *testing.T) {
       t.Errorf("literal.TokenLiteral not %s. got=%s", "5",
           literal.TokenLiteral())
   }
+}
+
+func TestParsingPrefixExpressions(t *testing.T) {
+	prefixTests := []struct{
+		input string
+		operator string
+		integerValue int64
+	}{
+		{"!5", "!", 5},
+		{"-15", "-", 15},
+	}
+
+	for _, testCase := range prefixTests {
+		lexer := lexer.New(testCase.input)
+		parser := New(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("the programs statmentcount was not 1 as expected got: %d", len(program.Statements))
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("the programs statement was not of type ExpressionStatement as expected/ Got: %T", statement.Expression)
+		}
+
+		expression, ok := statement.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("the expression was not of type PrefixExpression as expected/ Got: %T", statement.Expression)
+		}
+
+		if expression.Operator != testCase.operator {
+			t.Fatalf("the expressions operator was not %s as expected. Got: %s", testCase.operator, expression.Operator)
+		}
+
+		if !testIntegerLiteral(t, expression.Right, testCase.integerValue) {
+			return
+		}
+	}
+
+
 }
