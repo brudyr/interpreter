@@ -287,3 +287,71 @@ func TestParsingInfixExpressions(t *testing.T) {
 		}
 	}
 }
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		input string
+		expected string
+	}{
+	  {
+	    "-a * b",
+      "((-a) * b)",
+    },
+    {
+      "!-a",
+      "(!(-a))",
+    },
+    {
+      "a + b + c",
+      "((a + b) + c)",
+    },
+    {
+      "a + b - c",
+      "((a + b) - c)",
+    },
+    {
+      "a * b * c",
+      "((a * b) * c)",
+    },
+    {
+      "a * b / c",
+      "((a * b) / c)",
+    },
+    {
+      "a + b / c",
+      "(a + (b / c))",
+    },
+    {
+      "a + b * c + d / e - f",
+      "(((a + (b * c)) + (d / e)) - f)",
+    },
+    {
+      "3 + 4; -5 * 5",
+      "(3 + 4)((-5) * 5)",
+    },
+    {
+      "5 > 4 == 3 < 4",
+      "((5 > 4) == (3 < 4))",
+    },
+    {
+      "5 < 4 != 3 > 4",
+      "((5 < 4) != (3 > 4))",
+    },
+    {
+      "3 + 4 * 5 == 3 * 1 + 4 * 5",
+      "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+    },
+	}
+
+	for _, testCase := range tests {
+		lexer := lexer.New(testCase.input)
+		parser := New(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		actual := program.String()
+		if actual != testCase.expected {
+			t.Errorf("Expected=%q, got%q", testCase.expected, actual)
+		}
+	}
+}
